@@ -1,0 +1,104 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Details for a registered user including identity, presence, and preferences.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique user ID from Firebase Auth" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string", "format": "uri" },
+        "specialId": { "type": "string", "description": "User-friendly unique ID" },
+        "isOnline": { "type": "boolean" },
+        "isInCall": { "type": "boolean" },
+        "lastSeen": { "type": "string", "format": "date-time" },
+        "theme": { "type": "string", "enum": ["blue", "purple", "emerald", "rose"] }
+      },
+      "required": ["uid", "email", "specialId"]
+    },
+    "Chat": {
+      "title": "Chat Session",
+      "description": "A conversation between two users.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "participants": { "type": "array", "items": { "type": "string" } },
+        "lastMessage": { "type": "string" },
+        "lastMessageSenderId": { "type": "string" },
+        "lastMessageRead": { "type": "boolean" },
+        "unreadCount": { "type": "object", "additionalProperties": { "type": "number" } },
+        "typing": { "type": "object", "additionalProperties": { "type": "boolean" } },
+        "pinnedMessageId": { "type": "string" },
+        "pinnedMessageText": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["participants", "updatedAt"]
+    },
+    "Message": {
+      "title": "Chat Message",
+      "description": "An individual message within a chat.",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "text": { "type": "string" },
+        "type": { "type": "string", "enum": ["text", "image", "audio", "video"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "read": { "type": "boolean" },
+        "isEdited": { "type": "boolean" },
+        "editedAt": { "type": "string", "format": "date-time" },
+        "reactions": { "type": "object", "additionalProperties": { "type": "array", "items": { "type": "string" } } },
+        "replyTo": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "text": { "type": "string" },
+            "senderId": { "type": "string" }
+          }
+        },
+        "audioUrl": { "type": "string" },
+        "duration": { "type": "number" },
+        "deletedFor": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["senderId", "text", "type", "createdAt"]
+    },
+    "Call": {
+      "title": "Call Transaction",
+      "description": "Details of an active or past audio/video call.",
+      "type": "object",
+      "properties": {
+        "callerId": { "type": "string" },
+        "receiverId": { "type": "string" },
+        "status": { "type": "string", "enum": ["ringing", "accepted", "rejected", "ended", "missed"] },
+        "type": { "type": "string", "enum": ["audio", "video"] },
+        "channelId": { "type": "string" },
+        "participants": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "lastHeartbeat": { "type": "string", "format": "date-time" }
+      },
+      "required": ["callerId", "receiverId", "status", "type", "channelId", "participants", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Primary user profile data."
+    },
+    "/users/{userId}/contacts/{contactId}": {
+      "schema": "UserProfile",
+      "description": "User's individual contact list."
+    },
+    "/chats/{chatId}": {
+      "schema": "Chat",
+      "description": "Root collection for chat sessions."
+    },
+    "/chats/{chatId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Sub-collection of messages for a chat."
+    },
+    "/calls/{callId}": {
+      "schema": "Call",
+      "description": "Call records and active signals."
+    }
+  }
+}
